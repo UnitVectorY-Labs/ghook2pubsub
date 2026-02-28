@@ -5,6 +5,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/UnitVectorY-Labs/ghook2pubsub/internal/publisher"
 )
@@ -34,20 +35,15 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, "Failed to read body", http.StatusInternalServerError)
-		return
-	}
-	defer r.Body.Close()
+	userAgent := r.Header.Get("User-Agent")
 
-	// Build log context from headers
-	delivery := r.Header.Get("X-GitHub-Delivery")
+	// Build log context from headers we can inspect before reading the body.
+	ghDelivery := r.Header.Get("X-GitHub-Delivery")
 	ghEvent := r.Header.Get("X-GitHub-Event")
 	ghHookID := r.Header.Get("X-GitHub-Hook-ID")
 	logAttrs := []any{}
-	if delivery != "" {
-		logAttrs = append(logAttrs, "delivery", delivery)
+	if ghDelivery != "" {
+		logAttrs = append(logAttrs, "gh_delivery", ghDelivery)
 	}
 	if ghEvent != "" {
 		logAttrs = append(logAttrs, "gh_event", ghEvent)
@@ -55,6 +51,20 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if ghHookID != "" {
 		logAttrs = append(logAttrs, "gh_hook_id", ghHookID)
 	}
+
+	if !strings.HasPrefix(userAgent, "GitHub-Hookshot/") {
+		h.metrics.UserAgentFailures.Add(1)
+		slog.Warn("request rejected", append(logAttrs, "reason", "user_agent_invalid")...)
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Failed to read body", http.StatusInternalServerError)
+		return
+	}
+	defer r.Body.Close()
 
 	signatureHeader := r.Header.Get("X-Hub-Signature-256")
 	if signatureHeader == "" {

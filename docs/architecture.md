@@ -13,11 +13,12 @@ ghook2pubsub is a **single-purpose ingestion service**. It accepts GitHub webhoo
 ## Request Processing Flow
 
 1. GitHub sends an HTTP `POST` to `/webhook`.
-2. The server reads the full request body.
-3. The `X-Hub-Signature-256` header is validated against the configured secrets using HMAC-SHA256. If the header is missing the request is rejected with `401`; if no secret matches, it is rejected with `403`.
-4. Attributes are extracted from the HTTP headers and JSON body (see [attributes.md](attributes.md)).
-5. The raw body and attributes are published to the configured Pub/Sub topic.
-6. On successful publish the server responds with `204 No Content`.
+2. The `User-Agent` header is checked to ensure it starts with `GitHub-Hookshot/`. Requests that fail this check are rejected with `401`.
+3. The server reads the full request body.
+4. The `X-Hub-Signature-256` header is validated against the configured secrets using HMAC-SHA256. If the header is missing the request is rejected with `401`; if no secret matches, it is rejected with `403`.
+5. Attributes are extracted from the HTTP headers and JSON body (see [attributes.md](attributes.md)).
+6. The raw body and attributes are published to the configured Pub/Sub topic.
+7. On successful publish the server responds with `204 No Content`.
 
 ## HTTP Endpoints
 
@@ -31,20 +32,20 @@ ghook2pubsub is a **single-purpose ingestion service**. It accepts GitHub webhoo
 | Code | Meaning |
 |------|---------|
 | `204 No Content` | Webhook received, verified, and published successfully. |
-| `401 Unauthorized` | `X-Hub-Signature-256` header is missing. |
+| `401 Unauthorized` | `User-Agent` is not a GitHub Hookshot value or `X-Hub-Signature-256` is missing. |
 | `403 Forbidden` | Signature verification failed (no configured secret matched). |
 | `405 Method Not Allowed` | Request used an HTTP method other than `POST` on `/webhook`. |
 | `500 Internal Server Error` | Body read failure or Pub/Sub publish failure. |
 
 ## Error Handling
 
-- **Signature errors** are logged at `warn` level with the reason (`signature_missing` or `signature_invalid`) and the request is rejected. The payload is never published.
+- **Early request rejections** are logged at `warn` level with the reason (`user_agent_invalid`, `signature_missing`, or `signature_invalid`) and the request is rejected. The payload is never published.
 - **Pub/Sub publish errors** are logged at `error` level and the server returns `500`, signaling GitHub to retry the delivery.
-- **Payload parse failures** (malformed JSON) are logged as warnings. The payload is still published with only header-derived attributes; this ensures no data is silently dropped.
+- **Payload parse failures** (malformed JSON) and malformed attribute structures are logged as warnings. The payload is still published with only the attributes that could be extracted; this ensures no data is silently dropped.
 
 ## Delivery Semantics
 
-From GitHub's perspective the service provides **at-least-once** delivery semantics. GitHub retries webhook deliveries that do not receive a `2xx` response, and the service only returns `204` after the Pub/Sub publish call succeeds. If the network drops the `204` response after a successful publish, GitHub may retry and the message could be published again. Subscribers should be prepared to handle duplicate deliveries (the `delivery` attribute can be used for deduplication).
+From GitHub's perspective the service provides **at-least-once** delivery semantics. GitHub retries webhook deliveries that do not receive a `2xx` response, and the service only returns `204` after the Pub/Sub publish call succeeds. If the network drops the `204` response after a successful publish, GitHub may retry and the message could be published again. Subscribers should be prepared to handle duplicate deliveries (the `gh_delivery` attribute can be used for deduplication).
 
 ## Structured Logging
 
@@ -52,7 +53,7 @@ All log output is JSON (via Go's `log/slog` with `JSONHandler`), written to stdo
 
 | Field | Description |
 |-------|-------------|
-| `delivery` | GitHub delivery GUID (when present). |
+| `gh_delivery` | GitHub delivery GUID (when present). |
 | `gh_event` | GitHub event type (when present). |
 | `gh_hook_id` | GitHub hook ID (when present). |
 | `server_message_id` | Pub/Sub server-assigned message ID (on successful publish). |

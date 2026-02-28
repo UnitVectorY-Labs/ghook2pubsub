@@ -1,5 +1,5 @@
 # Use the official Golang image for building the application
-FROM golang:1.24.4 AS builder
+FROM golang:1.26.0 AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -21,7 +21,7 @@ ENV CGO_ENABLED=0
 RUN go build -mod=readonly -o server -ldflags "-X 'main.Version=${VERSION}'" .
 
 # Use a minimal base image for running the compiled binary
-FROM gcr.io/distroless/base-debian12
+FROM gcr.io/distroless/base-debian13
 
 # Copy the built server binary into the runtime container
 COPY --from=builder /app/server /server

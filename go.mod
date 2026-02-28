@@ -1,6 +1,6 @@
 module github.com/UnitVectorY-Labs/ghook2pubsub
 
-go 1.24.4 // GOVERSION
+go 1.26.0 // GOVERSION
 
 require cloud.google.com/go/pubsub v1.50.1
 

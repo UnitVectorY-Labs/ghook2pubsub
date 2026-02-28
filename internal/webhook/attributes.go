@@ -6,9 +6,15 @@ import (
 	"net/http"
 )
 
+// ExtractionResult contains the result of attribute extraction.
+type ExtractionResult struct {
+	Attributes  map[string]string
+	Warnings    []string
+	ParseFailed bool
+}
+
 // ExtractAttributes extracts Pub/Sub message attributes from headers and payload.
-// Returns the attributes map and a list of warnings.
-func ExtractAttributes(headers http.Header, body []byte) (map[string]string, []string) {
+func ExtractAttributes(headers http.Header, body []byte) ExtractionResult {
 	attrs := make(map[string]string)
 	var warnings []string
 
@@ -26,8 +32,8 @@ func ExtractAttributes(headers http.Header, body []byte) (map[string]string, []s
 	// Payload-derived attributes
 	var payload map[string]interface{}
 	if err := json.Unmarshal(body, &payload); err != nil {
-		warnings = append(warnings, fmt.Sprintf("failed to parse JSON payload: %v", err))
-		return attrs, warnings
+		warnings = append(warnings, fmt.Sprintf("payload_parse_failed: %v", err))
+		return ExtractionResult{Attributes: attrs, Warnings: warnings, ParseFailed: true}
 	}
 
 	setString(attrs, payload, "action", "action")
@@ -43,16 +49,16 @@ func ExtractAttributes(headers http.Header, body []byte) (map[string]string, []s
 
 	// Warn about missing common fields
 	if _, ok := attrs["org"]; !ok {
-		warnings = append(warnings, "missing organization in payload")
+		warnings = append(warnings, "attribute_missing: organization")
 	}
 	if _, ok := attrs["repo"]; !ok {
-		warnings = append(warnings, "missing repository in payload")
+		warnings = append(warnings, "attribute_missing: repository")
 	}
 	if _, ok := attrs["action"]; !ok {
-		warnings = append(warnings, "missing action in payload")
+		warnings = append(warnings, "attribute_missing: action")
 	}
 
-	return attrs, warnings
+	return ExtractionResult{Attributes: attrs, Warnings: warnings, ParseFailed: false}
 }
 
 func setString(attrs map[string]string, payload map[string]interface{}, attrKey, payloadKey string) {

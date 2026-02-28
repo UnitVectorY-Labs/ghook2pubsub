@@ -71,15 +71,18 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	attrs, warnings := ExtractAttributes(r.Header, body)
-	if len(warnings) > 0 {
-		h.metrics.AttributeExtractionWarnings.Add(int64(len(warnings)))
-		for _, warn := range warnings {
-			slog.Debug("attribute extraction warning", append(logAttrs, "warning", warn)...)
+	result := ExtractAttributes(r.Header, body)
+	if result.ParseFailed {
+		h.metrics.PayloadParseFailures.Add(1)
+	}
+	if len(result.Warnings) > 0 {
+		h.metrics.AttributeExtractionWarnings.Add(int64(len(result.Warnings)))
+		for _, warn := range result.Warnings {
+			slog.Warn("attribute extraction warning", append(logAttrs, "warning", warn)...)
 		}
 	}
 
-	serverID, err := h.pub.Publish(r.Context(), body, attrs)
+	serverID, err := h.pub.Publish(r.Context(), body, result.Attributes)
 	if err != nil {
 		h.metrics.PublishFailures.Add(1)
 		slog.Error("publish failed", append(logAttrs, "reason", "pubsub_publish_failed", "error", err.Error())...)

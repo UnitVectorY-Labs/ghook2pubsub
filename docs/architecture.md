@@ -8,7 +8,7 @@ ghook2pubsub is a **single-purpose ingestion service**. It accepts GitHub webhoo
 
 - **No filtering** – every valid webhook is published; subscribers decide what to act on.
 - **No queuing** – the service is stateless and does not buffer messages internally.
-- **No payload mutation** – the JSON body is published exactly as received from GitHub.
+- **No semantic payload mutation** – the webhook content is not rewritten. The only optional payload transformation is transport compression before Pub/Sub publish.
 
 ## Request Processing Flow
 
@@ -17,7 +17,7 @@ ghook2pubsub is a **single-purpose ingestion service**. It accepts GitHub webhoo
 3. The server reads the full request body.
 4. The `X-Hub-Signature-256` header is validated against the configured secrets using HMAC-SHA256. If the header is missing the request is rejected with `401`; if no secret matches, it is rejected with `403`.
 5. Attributes are extracted from the HTTP headers and JSON body (see [attributes.md](attributes.md)).
-6. The raw body and attributes are published to the configured Pub/Sub topic.
+6. The body and attributes are published to the configured Pub/Sub topic. If `PAYLOAD_COMPRESSION` is enabled, the body is compressed immediately before publish. If `PAYLOAD_COMPRESSION_ATTRIBUTE` is also set, that attribute is added with the compression algorithm name.
 7. On successful publish the server responds with `204 No Content`.
 
 ## HTTP Endpoints

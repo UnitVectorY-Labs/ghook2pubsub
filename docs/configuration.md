@@ -12,8 +12,12 @@ ghook2pubsub is configured entirely through environment variables.
 | `LISTEN_ADDR` | No | `0.0.0.0` | Address the HTTP server binds to. |
 | `LISTEN_PORT` | No | `8080` | Port the HTTP server listens on. |
 | `LOG_LEVEL` | No | `info` | Log verbosity. Accepted values: `debug`, `info`, `warn`, `error`. |
+| `PAYLOAD_COMPRESSION` | No | `none` | Compression applied to the Pub/Sub message data. Supported values: `none`, `gzip:<level>`, `zstd:<level>`. Example: `gzip:6`, `zstd:3`. |
+| `PAYLOAD_COMPRESSION_ATTRIBUTE` | No | unset | Optional Pub/Sub attribute name to emit when compression is enabled. The attribute value is the algorithm only, such as `gzip` or `zstd`. |
 
 The application exits immediately on startup if any required variable is missing or empty.
+
+`gzip` and `zstd` are both supported because they are widely available and compress JSON payloads well. `zstd` typically offers a better speed-to-ratio tradeoff, while `gzip` is the safest baseline for heterogeneous downstream consumers.
 
 ## Secret Rotation
 
@@ -35,6 +39,8 @@ docker run \
   -e WEBHOOK_SECRETS=my-secret \
   -e LISTEN_PORT=8080 \
   -e LOG_LEVEL=info \
+  -e PAYLOAD_COMPRESSION=zstd:3 \
+  -e PAYLOAD_COMPRESSION_ATTRIBUTE=compression \
   -p 8080:8080 \
   ghook2pubsub
 ```

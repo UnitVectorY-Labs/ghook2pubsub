@@ -2,7 +2,10 @@ module github.com/UnitVectorY-Labs/ghook2pubsub
 
 go 1.26.0 // GOVERSION
 
-require cloud.google.com/go/pubsub v1.50.1
+require (
+	cloud.google.com/go/pubsub v1.50.1
+	github.com/klauspost/compress v1.18.4
+)
 
 require (
 	cloud.google.com/go v0.121.6 // indirect

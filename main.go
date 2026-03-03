@@ -56,6 +56,8 @@ func main() {
 		"listen_port", cfg.ListenPort,
 		"pubsub_project_id", cfg.PubSubProjectID,
 		"pubsub_topic_id", cfg.PubSubTopicID,
+		"payload_compression", cfg.PayloadCompression.String(),
+		"payload_compression_attribute", cfg.PayloadCompression.AttributeName,
 		"webhook_secrets_count", len(cfg.WebhookSecrets),
 		"log_level", cfg.LogLevel,
 	)
@@ -68,8 +70,10 @@ func main() {
 	}
 	defer pub.Close()
 
+	publishingTarget := publisher.NewCompressingPublisher(pub, cfg.PayloadCompression)
+
 	metrics := &webhook.Metrics{}
-	handler := webhook.NewHandler(pub, cfg.WebhookSecrets, metrics)
+	handler := webhook.NewHandler(publishingTarget, cfg.WebhookSecrets, metrics)
 
 	mux := http.NewServeMux()
 	mux.Handle("POST /webhook", handler)

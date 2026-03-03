@@ -46,6 +46,12 @@ These attributes are extracted from the webhook payload on a best-effort basis.
 - If GitHub includes a relevant key or object but it cannot be converted into the documented attribute value, the payload is still published and a structured warning is emitted.
 - If the payload cannot be parsed, the message is still published with any header-derived attributes that were available.
 
+## Optional Compression Attribute
+
+- By default, **ghook2pubsub** does not emit any attribute describing payload compression.
+- If `PAYLOAD_COMPRESSION_ATTRIBUTE` is configured and payload compression is enabled, **ghook2pubsub** adds that exact attribute name to the message.
+- The attribute value is the compression algorithm only, currently `gzip` or `zstd`.
+
 ## Value Constraints
 
 - All attribute values are UTF-8 strings.

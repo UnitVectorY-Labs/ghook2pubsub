@@ -4,16 +4,19 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/UnitVectorY-Labs/ghook2pubsub/internal/publisher"
 )
 
 // Config holds application configuration loaded from environment variables.
 type Config struct {
-	PubSubProjectID string
-	PubSubTopicID   string
-	WebhookSecrets  []string
-	ListenAddr      string
-	ListenPort      string
-	LogLevel        string
+	PubSubProjectID    string
+	PubSubTopicID      string
+	WebhookSecrets     []string
+	ListenAddr         string
+	ListenPort         string
+	LogLevel           string
+	PayloadCompression publisher.CompressionConfig
 }
 
 // LoadConfig reads configuration from environment variables and validates required fields.
@@ -59,12 +62,21 @@ func LoadConfig() (*Config, error) {
 		logLevel = "info"
 	}
 
+	payloadCompression, err := publisher.ParseCompressionConfig(
+		os.Getenv("PAYLOAD_COMPRESSION"),
+		os.Getenv("PAYLOAD_COMPRESSION_ATTRIBUTE"),
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Config{
-		PubSubProjectID: projectID,
-		PubSubTopicID:   topicID,
-		WebhookSecrets:  secrets,
-		ListenAddr:      listenAddr,
-		ListenPort:      listenPort,
-		LogLevel:        logLevel,
+		PubSubProjectID:    projectID,
+		PubSubTopicID:      topicID,
+		WebhookSecrets:     secrets,
+		ListenAddr:         listenAddr,
+		ListenPort:         listenPort,
+		LogLevel:           logLevel,
+		PayloadCompression: payloadCompression,
 	}, nil
 }

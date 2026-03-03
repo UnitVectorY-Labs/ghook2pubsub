@@ -3,6 +3,8 @@ package webhook
 import (
 	"os"
 	"testing"
+
+	"github.com/UnitVectorY-Labs/ghook2pubsub/internal/publisher"
 )
 
 func clearConfigEnv() {
@@ -12,6 +14,8 @@ func clearConfigEnv() {
 	os.Unsetenv("LISTEN_ADDR")
 	os.Unsetenv("LISTEN_PORT")
 	os.Unsetenv("LOG_LEVEL")
+	os.Unsetenv("PAYLOAD_COMPRESSION")
+	os.Unsetenv("PAYLOAD_COMPRESSION_ATTRIBUTE")
 }
 
 func TestLoadConfig_Valid(t *testing.T) {
@@ -32,6 +36,9 @@ func TestLoadConfig_Valid(t *testing.T) {
 	}
 	if len(cfg.WebhookSecrets) != 1 || cfg.WebhookSecrets[0] != "secret1" {
 		t.Errorf("WebhookSecrets = %v, want [secret1]", cfg.WebhookSecrets)
+	}
+	if cfg.PayloadCompression.Enabled() {
+		t.Errorf("PayloadCompression.Enabled() = true, want false")
 	}
 }
 
@@ -87,6 +94,12 @@ func TestLoadConfig_DefaultValues(t *testing.T) {
 	if cfg.LogLevel != "info" {
 		t.Errorf("LogLevel = %q, want %q", cfg.LogLevel, "info")
 	}
+	if cfg.PayloadCompression.String() != "none" {
+		t.Errorf("PayloadCompression = %q, want %q", cfg.PayloadCompression.String(), "none")
+	}
+	if cfg.PayloadCompression.AttributeName != "" {
+		t.Errorf("PayloadCompression.AttributeName = %q, want empty", cfg.PayloadCompression.AttributeName)
+	}
 }
 
 func TestLoadConfig_MultipleSecrets(t *testing.T) {
@@ -107,6 +120,42 @@ func TestLoadConfig_MultipleSecrets(t *testing.T) {
 		if cfg.WebhookSecrets[i] != want {
 			t.Errorf("WebhookSecrets[%d] = %q, want %q", i, cfg.WebhookSecrets[i], want)
 		}
+	}
+}
+
+func TestLoadConfig_PayloadCompression(t *testing.T) {
+	clearConfigEnv()
+	t.Setenv("PUBSUB_PROJECT_ID", "my-project")
+	t.Setenv("PUBSUB_TOPIC_ID", "my-topic")
+	t.Setenv("WEBHOOK_SECRETS", "secret1")
+	t.Setenv("PAYLOAD_COMPRESSION", "gzip:6")
+	t.Setenv("PAYLOAD_COMPRESSION_ATTRIBUTE", "compression")
+
+	cfg, err := LoadConfig()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if cfg.PayloadCompression.Algorithm != publisher.CompressionGzip {
+		t.Fatalf("PayloadCompression.Algorithm = %q, want %q", cfg.PayloadCompression.Algorithm, publisher.CompressionGzip)
+	}
+	if cfg.PayloadCompression.Level != 6 {
+		t.Fatalf("PayloadCompression.Level = %d, want 6", cfg.PayloadCompression.Level)
+	}
+	if cfg.PayloadCompression.AttributeName != "compression" {
+		t.Fatalf("PayloadCompression.AttributeName = %q, want %q", cfg.PayloadCompression.AttributeName, "compression")
+	}
+}
+
+func TestLoadConfig_InvalidPayloadCompression(t *testing.T) {
+	clearConfigEnv()
+	t.Setenv("PUBSUB_PROJECT_ID", "my-project")
+	t.Setenv("PUBSUB_TOPIC_ID", "my-topic")
+	t.Setenv("WEBHOOK_SECRETS", "secret1")
+	t.Setenv("PAYLOAD_COMPRESSION", "gzip")
+
+	_, err := LoadConfig()
+	if err == nil {
+		t.Fatal("expected error for invalid PAYLOAD_COMPRESSION")
 	}
 }
 

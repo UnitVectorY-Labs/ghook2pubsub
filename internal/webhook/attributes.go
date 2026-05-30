@@ -64,7 +64,7 @@ func setHeaderAttr(attrs map[string]string, headers http.Header, attrKey, header
 	}
 }
 
-func parsePayload(contentType string, body []byte) (map[string]interface{}, error) {
+func parsePayload(contentType string, body []byte) (map[string]any, error) {
 	if payload, err := parseJSONPayload(body); err == nil {
 		return payload, nil
 	} else if !shouldAttemptFormPayload(contentType, body) {
@@ -79,15 +79,15 @@ func parsePayload(contentType string, body []byte) (map[string]interface{}, erro
 	return payload, nil
 }
 
-func parseJSONPayload(body []byte) (map[string]interface{}, error) {
-	var payload map[string]interface{}
+func parseJSONPayload(body []byte) (map[string]any, error) {
+	var payload map[string]any
 	if err := json.Unmarshal(body, &payload); err != nil {
 		return nil, err
 	}
 	return payload, nil
 }
 
-func parseFormPayload(body []byte) (map[string]interface{}, error) {
+func parseFormPayload(body []byte) (map[string]any, error) {
 	values, err := url.ParseQuery(string(body))
 	if err != nil {
 		return nil, err
@@ -110,7 +110,7 @@ func shouldAttemptFormPayload(contentType string, body []byte) bool {
 	return bytes.HasPrefix(trimmed, []byte("payload="))
 }
 
-func extractStringAttr(attrs map[string]string, warnings *[]string, payload map[string]interface{}, attrKey, warning string, paths ...[]string) {
+func extractStringAttr(attrs map[string]string, warnings *[]string, payload map[string]any, attrKey, warning string, paths ...[]string) {
 	if value, ok, invalid := firstStringValue(payload, paths...); ok {
 		attrs[attrKey] = value
 	} else if invalid {
@@ -118,13 +118,13 @@ func extractStringAttr(attrs map[string]string, warnings *[]string, payload map[
 	}
 }
 
-func extractOptionalStringAttr(attrs map[string]string, payload map[string]interface{}, attrKey string, paths ...[]string) {
+func extractOptionalStringAttr(attrs map[string]string, payload map[string]any, attrKey string, paths ...[]string) {
 	if value, ok, _ := firstStringValue(payload, paths...); ok {
 		attrs[attrKey] = value
 	}
 }
 
-func extractNumberAttr(attrs map[string]string, warnings *[]string, payload map[string]interface{}, attrKey, warning string, paths ...[]string) {
+func extractNumberAttr(attrs map[string]string, warnings *[]string, payload map[string]any, attrKey, warning string, paths ...[]string) {
 	if value, ok, invalid := firstNumberValue(payload, paths...); ok {
 		attrs[attrKey] = value
 	} else if invalid {
@@ -132,7 +132,7 @@ func extractNumberAttr(attrs map[string]string, warnings *[]string, payload map[
 	}
 }
 
-func firstStringValue(payload map[string]interface{}, paths ...[]string) (string, bool, bool) {
+func firstStringValue(payload map[string]any, paths ...[]string) (string, bool, bool) {
 	invalid := false
 
 	for _, path := range paths {
@@ -148,7 +148,7 @@ func firstStringValue(payload map[string]interface{}, paths ...[]string) (string
 	return "", false, invalid
 }
 
-func firstNumberValue(payload map[string]interface{}, paths ...[]string) (string, bool, bool) {
+func firstNumberValue(payload map[string]any, paths ...[]string) (string, bool, bool) {
 	invalid := false
 
 	for _, path := range paths {
@@ -164,11 +164,11 @@ func firstNumberValue(payload map[string]interface{}, paths ...[]string) (string
 	return "", false, invalid
 }
 
-func lookupStringPath(payload map[string]interface{}, path ...string) (string, lookupStatus) {
+func lookupStringPath(payload map[string]any, path ...string) (string, lookupStatus) {
 	current := any(payload)
 
 	for i, key := range path {
-		m, ok := current.(map[string]interface{})
+		m, ok := current.(map[string]any)
 		if !ok {
 			return "", lookupInvalid
 		}
@@ -199,11 +199,11 @@ func lookupStringPath(payload map[string]interface{}, path ...string) (string, l
 	return "", lookupMissing
 }
 
-func lookupNumberPath(payload map[string]interface{}, path ...string) (string, lookupStatus) {
+func lookupNumberPath(payload map[string]any, path ...string) (string, lookupStatus) {
 	current := any(payload)
 
 	for i, key := range path {
-		m, ok := current.(map[string]interface{})
+		m, ok := current.(map[string]any)
 		if !ok {
 			return "", lookupInvalid
 		}

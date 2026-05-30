@@ -37,7 +37,7 @@ func LoadConfig() (*Config, error) {
 	}
 
 	var secrets []string
-	for _, s := range strings.Split(secretsRaw, ",") {
+	for s := range strings.SplitSeq(secretsRaw, ",") {
 		trimmed := strings.TrimSpace(s)
 		if trimmed != "" {
 			secrets = append(secrets, trimmed)

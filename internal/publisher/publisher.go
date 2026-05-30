@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"context"
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -209,9 +210,7 @@ func cloneAttributesWithCompression(attributes map[string]string, config Compres
 	}
 
 	cloned := make(map[string]string, len(attributes)+1)
-	for key, value := range attributes {
-		cloned[key] = value
-	}
+	maps.Copy(cloned, attributes)
 	cloned[config.AttributeName] = string(config.Algorithm)
 	return cloned
 }

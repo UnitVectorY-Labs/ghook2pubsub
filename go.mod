@@ -4,7 +4,7 @@ go 1.27 // GOVERSION
 
 require (
 	cloud.google.com/go/pubsub v1.51.1
-	github.com/klauspost/compress v1.19.2
+	github.com/klauspost/compress v1.20.0
 )
 
 require (

@@ -1,0 +1,14 @@
+name: "ghook2pubsub"
+default_branch: "main"
+config:
+  description: "Consumes GitHub webhooks and publishes them to a GCP Pub/Sub topic."
+  license: "MIT"
+  language: "go"
+  release: "docker-go"
+  release_github: false
+  status: "wip"
+  justfile: false
+  codecov:
+    enabled: true
+  docs:
+    enabled: false

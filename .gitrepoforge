@@ -1,6 +1,7 @@
 name: "ghook2pubsub"
 default_branch: "main"
 config:
+  osv: sarif
   description: "Consumes GitHub webhooks and publishes them to a GCP Pub/Sub topic."
   license: "MIT"
   language: "go"

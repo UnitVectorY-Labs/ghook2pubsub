@@ -16,7 +16,7 @@ See the [documentation index](docs/README.md), starting with [Installation](docs
 - [ghook4action](https://github.com/UnitVectorY-Labs/ghook4action) consumes opened issue and pull request events to add matching items to GitHub organization Projects.
 - [pubsub2postgresaudit](https://github.com/UnitVectorY-Labs/pubsub2postgresaudit) consumes Pub/Sub messages and stores an audit history in PostgreSQL.
 
-Use separate subscriptions on the same topic to dispatch workflows and retain an audit history independently.
+Use separate subscriptions on the same topic to manage Project membership and retain an audit history independently.
 
 ## License
 

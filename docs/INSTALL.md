@@ -7,6 +7,8 @@ permalink: /install
 
 # Installation
 
+The project ID and topic name in these commands are placeholders. Replace them with your own values.
+
 ## Prerequisites
 
 - A Google Cloud project with the Pub/Sub API enabled and an existing topic.

@@ -7,13 +7,7 @@ permalink: /attributes
 
 # Pub/Sub Message Attributes
 
-Every webhook payload published to Pub/Sub carries a set of attributes extracted from the incoming GitHub delivery headers and JSON payload. These attributes are intended for routing and filtering, so the contract focuses on low-cardinality fields that are stable across event families.
-
-## Stability Guarantee
-
-- Attribute keys listed below are stable and will not be renamed or removed without a major version bump.
-- Adding new attribute keys is backward-compatible.
-- Removing an existing attribute key is a breaking change.
+Every webhook payload published to Pub/Sub carries a set of attributes extracted from the incoming GitHub delivery headers and JSON payload. Use these attributes for subscription filters, routing, and delivery tracing. Some values, such as delivery IDs and repository names, have many distinct values.
 
 ## Header-Derived Attributes
 

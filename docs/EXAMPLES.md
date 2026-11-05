@@ -7,6 +7,8 @@ permalink: /examples
 
 # Examples
 
+Replace `my-gcp-project` with your project ID. Topic and subscription names below are examples; use names appropriate for your environment. The inspection commands acknowledge messages on the temporary subscription only.
+
 ## Inspect a delivery
 
 Create a temporary subscription before sending a test GitHub event:

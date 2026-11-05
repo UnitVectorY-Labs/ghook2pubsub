@@ -1,3 +1,10 @@
+---
+layout: default
+title: Usage
+nav_order: 4
+permalink: /usage
+---
+
 # Usage
 
 ## Connect GitHub

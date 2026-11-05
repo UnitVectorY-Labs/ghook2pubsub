@@ -1,3 +1,10 @@
+---
+layout: default
+title: Installation
+nav_order: 2
+permalink: /install
+---
+
 # Installation
 
 ## Prerequisites

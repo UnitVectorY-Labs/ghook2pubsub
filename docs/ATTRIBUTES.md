@@ -1,3 +1,10 @@
+---
+layout: default
+title: Message Attributes
+nav_order: 6
+permalink: /attributes
+---
+
 # Pub/Sub Message Attributes
 
 Every webhook payload published to Pub/Sub carries a set of attributes extracted from the incoming GitHub delivery headers and JSON payload. These attributes are intended for routing and filtering, so the contract focuses on low-cardinality fields that are stable across event families.

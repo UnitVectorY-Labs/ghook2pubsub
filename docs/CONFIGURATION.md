@@ -1,3 +1,10 @@
+---
+layout: default
+title: Configuration
+nav_order: 3
+permalink: /configuration
+---
+
 # Configuration
 
 ghook2pubsub is configured entirely through environment variables.
@@ -37,3 +44,5 @@ The Google Cloud client uses Application Default Credentials. See [Installation]
 `gzip` levels must be 1–9; `zstd` levels must be positive integers. Invalid compression settings prevent startup. If compression is disabled, no compression attribute is emitted even when an attribute name is configured. Choose an attribute name that does not overwrite an existing [message attribute](ATTRIBUTES.md).
 
 Configure downstream consumers for the same compression format before enabling it. Compression does not change extracted routing attributes.
+
+When using ghook4action or pubsub2postgresaudit, set `PAYLOAD_COMPRESSION_ATTRIBUTE=compression` if compression is enabled; both consumers expect that attribute name. Use GitHub JSON deliveries for the audit consumer, which requires JSON message data.

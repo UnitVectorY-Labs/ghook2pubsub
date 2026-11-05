@@ -1,3 +1,10 @@
+---
+layout: default
+title: ghook2pubsub
+nav_order: 1
+permalink: /
+---
+
 # ghook2pubsub Documentation
 
 Accept signed GitHub webhooks and publish their original body to Google Cloud Pub/Sub, with attributes for downstream routing. Optional compression changes the message bytes, not the webhook content.

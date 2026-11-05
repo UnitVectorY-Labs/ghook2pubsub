@@ -1,3 +1,10 @@
+---
+layout: default
+title: Examples
+nav_order: 5
+permalink: /examples
+---
+
 # Examples
 
 ## Inspect a delivery
@@ -34,7 +41,7 @@ gcloud pubsub subscriptions create github-push-events \
   --message-filter='attributes.gh_event = "push"'
 ```
 
-Use separate subscriptions on the same topic for independent consumers: [ghook4action](https://github.com/UnitVectorY-Labs/ghook4action) can dispatch GitHub Actions workflows, while [pubsub2postgresaudit](https://github.com/UnitVectorY-Labs/pubsub2postgresaudit) can store an audit history in PostgreSQL. Configure each consumer using its own documentation.
+Use separate subscriptions on the same topic for independent consumers: [ghook4action](https://github.com/UnitVectorY-Labs/ghook4action) can add opened issues and pull requests to GitHub organization Projects, while [pubsub2postgresaudit](https://github.com/UnitVectorY-Labs/pubsub2postgresaudit) can store an audit history in PostgreSQL. Configure each consumer using its own documentation.
 
 ## Compress payloads
 

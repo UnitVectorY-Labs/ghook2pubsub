@@ -30,17 +30,10 @@ This enables zero-downtime secret rotation:
 3. Update the webhook secret in GitHub to the new secret.
 4. After confirming all deliveries use the new secret, remove the old secret from `WEBHOOK_SECRETS` and redeploy.
 
-## Example Docker Run
+## Credentials and downstream compatibility
 
-```bash
-docker run \
-  -e PUBSUB_PROJECT_ID=my-gcp-project \
-  -e PUBSUB_TOPIC_ID=github-webhooks \
-  -e WEBHOOK_SECRETS=my-secret \
-  -e LISTEN_PORT=8080 \
-  -e LOG_LEVEL=info \
-  -e PAYLOAD_COMPRESSION=zstd:3 \
-  -e PAYLOAD_COMPRESSION_ATTRIBUTE=compression \
-  -p 8080:8080 \
-  ghook2pubsub
-```
+The Google Cloud client uses Application Default Credentials. See [Installation](INSTALL.md) for runtime identity and local Docker setup.
+
+`gzip` levels must be 1–9; `zstd` levels must be positive integers. Invalid compression settings prevent startup. If compression is disabled, no compression attribute is emitted even when an attribute name is configured. Choose an attribute name that does not overwrite an existing [message attribute](ATTRIBUTES.md).
+
+Configure downstream consumers for the same compression format before enabling it. Compression does not change extracted routing attributes.

@@ -8,28 +8,15 @@ The published payload can optionally be compressed by setting `PAYLOAD_COMPRESSI
 
 ## Documentation
 
-Full documentation is available in the [`docs/`](docs/) folder:
+See the [documentation index](docs/README.md), starting with [Installation](docs/INSTALL.md) and [Usage](docs/USAGE.md). [Configuration](docs/CONFIGURATION.md), [Examples](docs/EXAMPLES.md), and the [message attribute reference](docs/ATTRIBUTES.md) cover deployment and integration.
 
-- [Configuration](docs/configuration.md) – environment variables and Docker usage
-- [Pub/Sub Attributes](docs/attributes.md) – message attribute contract
-- [Architecture](docs/architecture.md) – design, request flow, and error handling
+## Related Projects
 
-## Getting Started
+- [ghook2pubsub](https://github.com/UnitVectorY-Labs/ghook2pubsub) accepts signed GitHub webhooks and publishes them to Google Cloud Pub/Sub.
+- [ghook4action](https://github.com/UnitVectorY-Labs/ghook4action) consumes those events to dispatch GitHub Actions workflows.
+- [pubsub2postgresaudit](https://github.com/UnitVectorY-Labs/pubsub2postgresaudit) consumes Pub/Sub messages and stores an audit history in PostgreSQL.
 
-Run with Docker:
-
-```bash
-docker run \
-  -e PUBSUB_PROJECT_ID=my-gcp-project \
-  -e PUBSUB_TOPIC_ID=github-webhooks \
-  -e WEBHOOK_SECRETS=my-secret \
-  -e PAYLOAD_COMPRESSION=gzip:6 \
-  -e PAYLOAD_COMPRESSION_ATTRIBUTE=compression \
-  -p 8080:8080 \
-  ghook2pubsub
-```
-
-Then configure your GitHub webhook to point at `http://<host>:8080/webhook`.
+Use separate subscriptions on the same topic to dispatch workflows and retain an audit history independently.
 
 ## License
 

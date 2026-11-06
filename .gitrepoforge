@@ -7,7 +7,7 @@ config:
   language: "go"
   release: "docker-go"
   release_github: false
-  status: "wip"
+  status: "active"
   justfile: false
   codecov:
     enabled: true

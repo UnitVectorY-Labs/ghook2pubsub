@@ -6,7 +6,7 @@ config:
   license: "MIT"
   language: "go"
   release: "docker-go"
-  release_github: false
+  release_github: true
   status: "active"
   justfile: false
   codecov:

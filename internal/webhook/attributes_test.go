@@ -292,3 +292,27 @@ func TestExtractAttributes_EmptyBody(t *testing.T) {
 		t.Fatal("expected ParseFailed to be true for empty body")
 	}
 }
+
+func TestExtractAttributes_StrictJSON(t *testing.T) {
+	tests := []struct {
+		name string
+		body []byte
+	}{
+		{"duplicate keys", []byte(`{"action":"opened","action":"closed"}`)},
+		{"nested duplicate keys", []byte(`{"repository":{"full_name":"a","full_name":"b"}}`)},
+		{"invalid UTF-8", []byte("{\"action\":\"\xff\"}")},
+		{"form encoded duplicate keys", []byte("payload=" + url.QueryEscape(`{"action":"opened","action":"closed"}`))},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			headers := http.Header{"X-Github-Delivery": {"delivery-123"}}
+			result := ExtractAttributes(headers, tt.body)
+			if !result.ParseFailed || len(result.Warnings) == 0 {
+				t.Fatalf("expected parse failure and warning, got %+v", result)
+			}
+			if len(result.Attributes) != 1 || result.Attributes["gh_delivery"] != "delivery-123" {
+				t.Errorf("expected only header attributes on parse failure, got %v", result.Attributes)
+			}
+		})
+	}
+}

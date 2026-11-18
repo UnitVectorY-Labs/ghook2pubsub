@@ -2,7 +2,7 @@ package webhook
 
 import (
 	"bytes"
-	"encoding/json"
+	"encoding/json/v2"
 	"fmt"
 	"mime"
 	"net/http"
@@ -224,8 +224,6 @@ func lookupNumberPath(payload map[string]any, path ...string) (string, lookupSta
 			switch value := next.(type) {
 			case float64:
 				return fmt.Sprintf("%d", int64(value)), lookupFound
-			case json.Number:
-				return value.String(), lookupFound
 			default:
 				return "", lookupInvalid
 			}

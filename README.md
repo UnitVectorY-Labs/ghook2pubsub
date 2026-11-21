@@ -15,8 +15,9 @@ See the [documentation index](docs/README.md), starting with [Installation](docs
 - [ghook2pubsub](https://github.com/UnitVectorY-Labs/ghook2pubsub) accepts signed GitHub webhooks and publishes them to Google Cloud Pub/Sub.
 - [ghook4action](https://github.com/UnitVectorY-Labs/ghook4action) consumes opened issue and pull request events to add matching items to GitHub organization Projects.
 - [pubsub2postgresaudit](https://github.com/UnitVectorY-Labs/pubsub2postgresaudit) consumes Pub/Sub messages and stores an audit history in PostgreSQL.
+- [pubsub2webhook](https://github.com/UnitVectorY-Labs/pubsub2webhook) consumes Pub/Sub messages and replays them as HTTP webhook requests to internal or external endpoints.
 
-Use separate subscriptions on the same topic to manage Project membership and retain an audit history independently.
+Use separate subscriptions on the same topic to manage Project membership, retain an audit history, and replay webhooks independently.
 
 ## License
 
